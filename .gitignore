@@ -1,0 +1,28 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.env
+.vscode/
+.DS_Store
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+frontend/.next/
+frontend/.output/
+
+# Large model files
+backend/models/
+models/
+*.nemo
+*.ckpt
+*.pt
+*.pth
+
+# Lockfiles (optional)
+# package-lock.json

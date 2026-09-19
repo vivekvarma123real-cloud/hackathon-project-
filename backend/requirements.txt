@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+httpx
+aiofiles
+# ASR dependencies for AI4Bharat IndicConformer (NeMo)
+torch
+torchaudio
+nemo_toolkit[asr]
+python-multipart
