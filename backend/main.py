@@ -82,186 +82,253 @@ except Exception as e:
 # ============================================================
 
 COMPLAINT_FLOWS = {
-    "headache": ["chief_complaint", "duration", "headache_location", "headache_severity", "headache_pattern", "headache_associated"],
-    "fever": ["chief_complaint", "duration", "fever_pattern", "fever_associated", "fever_other_symptoms", "fever_medications"],
-    "cough": ["chief_complaint", "duration", "cough_type", "cough_sputum", "cough_associated", "cough_breathing"],
-    "cold": ["chief_complaint", "duration", "cold_nasal", "cold_sneezing", "cold_associated", "cold_breathing"],
-    "stomach_pain": ["chief_complaint", "duration", "stomach_location", "stomach_pattern", "stomach_associated", "stomach_eating"],
-    "vomiting": ["chief_complaint", "duration", "vomiting_frequency", "vomiting_associated", "vomiting_fever", "vomiting_tolerance"],
-    "diarrhea": ["chief_complaint", "duration", "diarrhea_frequency", "diarrhea_associated", "diarrhea_fever", "diarrhea_dehydration"],
-    "sore_throat": ["chief_complaint", "duration", "sore_throat_severity", "sore_throat_swallowing", "sore_throat_associated", "sore_throat_medications"],
-    "back_pain": ["chief_complaint", "duration", "back_location", "back_radiation", "back_neurological", "back_aggravating"],
-    "unknown": ["chief_complaint", "duration", "severity", "associated_symptoms", "past_history", "medications_allergies"]
+    "headache": ["chief_complaint", "headache_duration", "headache_location", "headache_severity", "headache_pattern", "headache_associated"],
+    "fever": ["chief_complaint", "fever_duration", "fever_pattern", "fever_associated", "fever_other_symptoms", "fever_medications"],
+    "cough": ["chief_complaint", "cough_duration", "cough_type", "cough_sputum", "cough_associated", "cough_breathing"],
+    "cold": ["chief_complaint", "cold_duration", "cold_nasal", "cold_sneezing", "cold_associated", "cold_breathing"],
+    "stomach_pain": ["chief_complaint", "stomach_duration", "stomach_location", "stomach_pattern", "stomach_associated", "stomach_eating"],
+    "vomiting": ["chief_complaint", "vomiting_duration", "vomiting_frequency", "vomiting_associated", "vomiting_fever", "vomiting_tolerance"],
+    "diarrhea": ["chief_complaint", "diarrhea_duration", "diarrhea_frequency", "diarrhea_associated", "diarrhea_fever", "diarrhea_dehydration"],
+    "sore_throat": ["chief_complaint", "sore_throat_duration", "sore_throat_severity", "sore_throat_swallowing", "sore_throat_associated", "sore_throat_medications"],
+    "back_pain": ["chief_complaint", "back_pain_duration", "back_location", "back_radiation", "back_neurological", "back_aggravating"],
+    "unknown": ["chief_complaint", "duration"]
 }
 
 PREDEFINED_QUESTIONS = {
     "chief_complaint": {
-        "en": "What problem are you facing today?",
         "hi": "आज आपको क्या तकलीफ़ हो रही है?",
+        "en": "What problem are you facing today?",
+        "hinglish": "Aaj aapko kya takleef ho rahi hai?"
     },
     "duration": {
-        "en": "Since when have you had this problem?",
         "hi": "ये तकलीफ़ कब से है?",
+        "en": "Since when have you had this problem?",
+        "hinglish": "Ye takleef kab se hai?"
+    },
+    "headache_duration": {
+        "hi": "सिरदर्द कब से है?",
+        "en": "Since when have you had a headache?",
+        "hinglish": "Headache kab se hai?"
     },
     "headache_location": {
-        "en": "Where exactly is the headache?",
         "hi": "सिर में दर्द कहाँ हो रहा है?",
+        "en": "Where exactly is the headache?",
+        "hinglish": "Sir mein dard kahan ho raha hai?"
     },
     "headache_severity": {
-        "en": "How would you describe the pain: mild, severe, or very severe?",
         "hi": "दर्द कैसा है, हल्का, तेज़ या बहुत तेज़?",
+        "en": "How would you describe the pain: mild, severe, or very severe?",
+        "hinglish": "Dard kaisa hai, halka, tez ya bahut tez?"
     },
     "headache_pattern": {
-        "en": "Is the pain constant or does it come and go?",
         "hi": "दर्द लगातार रहता है या बीच-बीच में होता है?",
+        "en": "Is the pain constant or does it come and go?",
+        "hinglish": "Dard lagatar rehta hai ya beech-beech mein hota hai?"
     },
     "headache_associated": {
-        "en": "Do you also have dizziness, vomiting, or blurred vision?",
         "hi": "इसके साथ चक्कर, उल्टी या धुंधला दिखाई देना भी होता है?",
+        "en": "Do you also have dizziness, vomiting, or blurred vision?",
+        "hinglish": "Iske saath chakkar, ulti ya dhundhla dikhna bhi hota hai?"
+    },
+    "fever_duration": {
+        "hi": "बुखार कब से है?",
+        "en": "Since when have you had a fever?",
+        "hinglish": "Fever kab se hai?"
     },
     "fever_pattern": {
-        "en": "Is the fever constant or does it come and go?",
         "hi": "बुखार लगातार रहता है या आता-जाता है?",
+        "en": "Is the fever constant or does it come and go?",
+        "hinglish": "Fever lagatar rehta hai ya aata-jaata hai?"
     },
     "fever_associated": {
-        "en": "Do you also have chills, body aches, or weakness?",
         "hi": "बुखार के साथ ठंड लगना, शरीर में दर्द या कमजोरी भी है?",
+        "en": "Do you also have chills, body aches, or weakness?",
+        "hinglish": "Fever ke saath thand lagna, body pain ya weakness bhi hai?"
     },
     "fever_other_symptoms": {
-        "en": "Do you have any other symptoms such as cough, sore throat, vomiting, diarrhea, or burning while urinating?",
         "hi": "खांसी, गले में दर्द, उल्टी, दस्त या पेशाब में जलन जैसी कोई और तकलीफ़ है?",
+        "en": "Do you have any other symptoms such as cough, sore throat, vomiting, diarrhea, or burning while urinating?",
+        "hinglish": "Cough, gale mein dard, ulti, loose motion ya urine karte waqt jalan jaisi koi aur problem hai?"
     },
     "fever_medications": {
-        "en": "Have you taken any medicine for the fever?",
         "hi": "बुखार के लिए कोई दवाई ली है?",
+        "en": "Have you taken any medicine for the fever?",
+        "hinglish": "Fever ke liye koi medicine li hai?"
+    },
+    "cough_duration": {
+        "hi": "खांसी कब से हो रही है?",
+        "en": "Since when have you had the cough?",
+        "hinglish": "Khansi kab se ho rahi hai?"
     },
     "cough_type": {
-        "en": "Is the cough dry, or do you have phlegm?",
         "hi": "खांसी सूखी है या बलगम भी निकलता है?",
+        "en": "Is the cough dry, or do you have phlegm?",
+        "hinglish": "Khansi dry hai ya phlegm bhi nikalta hai?"
     },
     "cough_sputum": {
-        "en": "If you have phlegm, what color is it?",
         "hi": "बलगम है तो उसका रंग कैसा है?",
+        "en": "If you have phlegm, what color is it?",
+        "hinglish": "Agar phlegm hai, to uska color kaisa hai?"
     },
     "cough_associated": {
-        "en": "Do you also have fever or a sore throat?",
         "hi": "बुखार या गले में दर्द भी है?",
+        "en": "Do you also have fever or a sore throat?",
+        "hinglish": "Fever ya gale mein dard bhi hai?"
     },
     "cough_breathing": {
-        "en": "Do you have shortness of breath or chest pain?",
         "hi": "सांस फूलती है या सीने में दर्द भी होता है?",
+        "en": "Do you have shortness of breath or chest pain?",
+        "hinglish": "Saans phoolti hai ya chest mein pain bhi hota hai?"
+    },
+    "cold_duration": {
+        "hi": "जुकाम कब से है?",
+        "en": "Since when have you had the cold?",
+        "hinglish": "Cold kab se hai?"
     },
     "cold_nasal": {
-        "en": "Is your nose running or blocked?",
         "hi": "नाक बह रही है या नाक बंद है?",
+        "en": "Is your nose running or blocked?",
+        "hinglish": "Naak beh rahi hai ya blocked hai?"
     },
     "cold_sneezing": {
-        "en": "Are you also sneezing?",
         "hi": "छींकें भी आ रही हैं?",
+        "en": "Are you also sneezing?",
+        "hinglish": "Chheenk bhi aa rahi hai?"
     },
     "cold_associated": {
-        "en": "Do you also have a sore throat or fever?",
         "hi": "गले में दर्द या बुखार भी है?",
+        "en": "Do you also have a sore throat or fever?",
+        "hinglish": "Gale mein dard ya fever bhi hai?"
     },
     "cold_breathing": {
-        "en": "Are you having any difficulty breathing?",
         "hi": "सांस लेने में कोई परेशानी तो नहीं है?",
+        "en": "Are you having any difficulty breathing?",
+        "hinglish": "Saans lene mein koi problem to nahi hai?"
+    },
+    "stomach_duration": {
+        "hi": "पेट में दर्द कब से है?",
+        "en": "Since when have you had stomach pain?",
+        "hinglish": "Pet mein dard kab se hai?"
     },
     "stomach_location": {
-        "en": "Where exactly is the stomach pain?",
         "hi": "पेट में दर्द कहाँ हो रहा है?",
+        "en": "Where exactly is the stomach pain?",
+        "hinglish": "Pet mein dard kahan ho raha hai?"
     },
     "stomach_pattern": {
-        "en": "Is the pain constant or does it come and go?",
         "hi": "दर्द लगातार रहता है या आता-जाता है?",
+        "en": "Is the pain constant or does it come and go?",
+        "hinglish": "Dard lagatar rehta hai ya aata-jaata hai?"
     },
     "stomach_associated": {
-        "en": "Do you also have vomiting, diarrhea, or gas?",
         "hi": "उल्टी, दस्त या गैस जैसी कोई और तकलीफ़ है?",
+        "en": "Do you also have vomiting, diarrhea, or gas?",
+        "hinglish": "Ulti, loose motion ya gas jaisi koi aur problem hai?"
     },
     "stomach_eating": {
-        "en": "Does the pain get worse or better after eating?",
         "hi": "खाना खाने से दर्द बढ़ता है या कम होता है?",
+        "en": "Does the pain get worse or better after eating?",
+        "hinglish": "Khana khane se dard badhta hai ya kam hota hai?"
+    },
+    "vomiting_duration": {
+        "hi": "उल्टी कब से हो रही है?",
+        "en": "Since when have you been vomiting?",
+        "hinglish": "Ulti kab se ho rahi hai?"
     },
     "vomiting_frequency": {
-        "en": "How many times have you vomited today?",
         "hi": "आज कितनी बार उल्टी हुई है?",
+        "en": "How many times have you vomited today?",
+        "hinglish": "Aaj kitni baar ulti hui hai?"
     },
     "vomiting_associated": {
-        "en": "Do you also have stomach pain or diarrhea?",
         "hi": "पेट में दर्द या दस्त भी हैं?",
+        "en": "Do you also have stomach pain or diarrhea?",
+        "hinglish": "Pet mein dard ya loose motion bhi hain?"
     },
     "vomiting_fever": {
-        "en": "Do you also have a fever?",
         "hi": "बुखार भी है?",
+        "en": "Do you also have a fever?",
+        "hinglish": "Fever bhi hai?"
     },
     "vomiting_tolerance": {
-        "en": "Do you vomit even after drinking water or eating food?",
         "hi": "पानी या खाना लेने पर भी उल्टी हो जाती है?",
+        "en": "Do you vomit even after drinking water or eating food?",
+        "hinglish": "Paani ya khana lene par bhi ulti ho jaati hai?"
+    },
+    "diarrhea_duration": {
+        "hi": "दस्त कब से हो रहे हैं?",
+        "en": "Since when have you had diarrhea?",
+        "hinglish": "Loose motion kab se ho rahe hain?"
     },
     "diarrhea_frequency": {
-        "en": "About how many times are you having diarrhea in a day?",
         "hi": "दिन में लगभग कितनी बार दस्त हो रहे हैं?",
+        "en": "About how many times are you having diarrhea in a day?",
+        "hinglish": "Din mein lagbhag kitni baar loose motion ho rahe hain?"
     },
     "diarrhea_associated": {
-        "en": "Do you also have vomiting or stomach pain?",
         "hi": "उल्टी या पेट में दर्द भी है?",
+        "en": "Do you also have vomiting or stomach pain?",
+        "hinglish": "Ulti ya pet mein dard bhi hai?"
     },
     "diarrhea_fever": {
-        "en": "Do you also have a fever?",
         "hi": "बुखार भी है?",
+        "en": "Do you also have a fever?",
+        "hinglish": "Fever bhi hai?"
     },
     "diarrhea_dehydration": {
-        "en": "Are you having excessive thirst, dizziness, or weakness?",
         "hi": "बहुत प्यास लगना, चक्कर आना या कमजोरी जैसी परेशानी तो नहीं है?",
+        "en": "Are you having excessive thirst, dizziness, or weakness?",
+        "hinglish": "Bahut pyaas lagna, chakkar aana ya weakness jaisi problem to nahi hai?"
+    },
+    "sore_throat_duration": {
+        "hi": "गले में दर्द कब से है?",
+        "en": "Since when have you had a sore throat?",
+        "hinglish": "Gale mein dard kab se hai?"
     },
     "sore_throat_severity": {
-        "en": "How severe is the throat pain: mild, severe, or very severe?",
         "hi": "गले में दर्द कितना है, हल्का, तेज़ या बहुत तेज़?",
+        "en": "How severe is the throat pain: mild, severe, or very severe?",
+        "hinglish": "Gale mein dard kitna hai, halka, tez ya bahut tez?"
     },
     "sore_throat_swallowing": {
-        "en": "Do you have pain or difficulty when swallowing?",
         "hi": "निगलने में दर्द या परेशानी होती है?",
+        "en": "Do you have pain or difficulty when swallowing?",
+        "hinglish": "Nigalne mein dard ya problem hoti hai?"
     },
     "sore_throat_associated": {
-        "en": "Do you also have fever or cough?",
         "hi": "बुखार या खांसी भी है?",
+        "en": "Do you also have fever or cough?",
+        "hinglish": "Fever ya cough bhi hai?"
     },
     "sore_throat_medications": {
-        "en": "Have you taken any medicine for it?",
         "hi": "इसके लिए कोई दवाई ली है?",
+        "en": "Have you taken any medicine for it?",
+        "hinglish": "Iske liye koi medicine li hai?"
+    },
+    "back_pain_duration": {
+        "hi": "कमर में दर्द कब से है?",
+        "en": "Since when have you had back pain?",
+        "hinglish": "Kamar mein dard kab se hai?"
     },
     "back_location": {
-        "en": "Where exactly is the back pain?",
         "hi": "दर्द कमर के किस हिस्से में है?",
+        "en": "Where exactly is the back pain?",
+        "hinglish": "Dard kamar ke kis part mein hai?"
     },
     "back_radiation": {
-        "en": "Does the pain also travel down your leg?",
         "hi": "दर्द पैर तक भी जाता है?",
+        "en": "Does the pain also travel down your leg?",
+        "hinglish": "Dard pair tak bhi jaata hai?"
     },
     "back_neurological": {
-        "en": "Do you also have numbness, tingling, or weakness in your leg?",
         "hi": "पैर में सुन्नपन, झनझनाहट या कमजोरी भी है?",
+        "en": "Do you also have numbness, tingling, or weakness in your leg?",
+        "hinglish": "Pair mein sunnpan, jhanjhanahat ya weakness bhi hai?"
     },
     "back_aggravating": {
-        "en": "Does the pain get worse when walking, bending, or sitting?",
         "hi": "चलने, झुकने या बैठने से दर्द बढ़ता है?",
-    },
-    "severity": {
-        "en": "How severe is the problem?",
-        "hi": "ये तकलीफ़ कितनी गंभीर है?",
-    },
-    "associated_symptoms": {
-        "en": "Do you have any other symptoms?",
-        "hi": "क्या आपको कोई और लक्षण भी हैं?",
-    },
-    "past_history": {
-        "en": "Have you had this problem before?",
-        "hi": "क्या आपको ये तकलीफ़ पहले भी हुई है?",
-    },
-    "medications_allergies": {
-        "en": "Are you taking any medications or have any allergies?",
-        "hi": "क्या आप कोई दवा ले रहे हैं या आपको किसी चीज़ से एलर्जी है?",
+        "en": "Does the pain get worse when walking, bending, or sitting?",
+        "hinglish": "Chalne, jhukne ya baithne se dard badhta hai?"
     }
 }
 
@@ -404,9 +471,17 @@ def get_next_question_id(current_id: str, structured_answers: Dict[str, str], co
     
     for i in range(current_idx + 1, len(flow)):
         qid = flow[i]
-        # Skip if already answered
+        
+        # Check if it's already answered directly
         if structured_answers.get(qid, "").strip():
             continue
+            
+        # Special skip rule for duration: if Q1 extracted duration, skip Q2 (which is typically *_duration)
+        if qid.endswith("duration") and structured_answers.get("duration", "").strip():
+            # Automatically populate this specific duration key so it's marked as answered
+            structured_answers[qid] = structured_answers["duration"]
+            continue
+            
         return qid
     
     return None  # All questions answered
@@ -566,19 +641,43 @@ async def interview(request: InterviewRequest):
     
     # ---- Use Qwen to extract structured info from answer ----
     if answer and current_qid:
+        # Normalization
+        norm_answer = answer.lower().replace("।", "").strip()
+        import re
+        norm_answer = re.sub(r'\s+', ' ', norm_answer)
+
         if current_qid == "chief_complaint":
-            extract_prompt = f"""The patient was asked about their chief complaint.
-The patient's answer was: "{answer}"
-Note: The answer may be in Hindi or Hinglish. Translate the main symptom to English before categorizing (e.g., 'dast' means diarrhea, 'ulti' means vomiting, 'bukhar' means fever, 'khansi' means cough, 'zukam' means cold, 'dard' means pain).
+            extract_prompt = f"""You are a clinical complaint classification and information extraction engine.
+Your job is NOT to generate questions.
+Read the patient's answer and identify the primary complaint.
 
-Extract the following from their answer:
-1. 'complaint_category': identify the main problem. Match this exactly to one of these categories if possible: [headache, fever, cough, cold, stomach_pain, vomiting, diarrhea, sore_throat, back_pain]. If it does not match, use 'unknown'.
-2. 'complaint_text': the exact problem they reported translated to English.
-3. 'duration': if they mentioned how long they have had it (e.g., "3 days"). If not mentioned, set to null.
-4. 'associated_symptoms': any other symptoms they mentioned. If none, set to null.
-5. 'extracted': A short 1-sentence summary of the answer.
+The patient's answer was: "{norm_answer}"
 
-Return JSON: {{"complaint_category": "<one_of_the_categories>", "complaint_text": "<text>", "duration": "<duration_or_null>", "associated_symptoms": "<symptoms_or_null>", "extracted": "<summary>"}}"""
+Supported categories:
+headache, fever, cough, cold, stomach_pain, vomiting, diarrhea, sore_throat, back_pain, unknown
+
+Understand Hindi, English, Hinglish, Roman Hindi, and mixed-language speech.
+Map synonymous expressions to the correct category.
+Examples:
+कमर दर्द -> back_pain
+kamar mein dard -> back_pain
+kamar pain -> back_pain
+back pain -> back_pain
+
+खांसी -> cough
+khansi -> cough
+cough -> cough
+dry cough -> cough
+cough with phlegm -> cough
+
+If the patient mentions multiple symptoms, identify the main complaint based on the patient's statement.
+Example: "Mujhe kamar mein dard hai aur pair mein thoda sunnpan hai."
+Result: complaint_category: back_pain, associated_symptoms: ["leg numbness"]
+
+Extract duration if it is present. If duration is not present, set to null.
+
+Return ONLY valid JSON. Do not generate questions. Do not diagnose. Do not invent information.
+Return JSON: {{"complaint_category": "<category>", "complaint_text": "<exact problem translated to English>", "duration": "<duration_or_null>", "associated_symptoms": [], "language": "<language>"}}"""
         else:
             extract_prompt = f"""The patient was asked about: {current_qid}
 The patient's answer was: "{answer}"
@@ -591,20 +690,67 @@ Return JSON: {{"extracted": "the key information"}}"""
         print(f"[QWEN] response received (extract)")
         print(f"[QWEN] parsed response: {extract_response}")
         extracted = None
+        
+        # Heuristic language detection
+        import string
+        if any('\u0900' <= c <= '\u097F' for c in answer):
+            lang = "hi"
+        elif any(c in string.ascii_letters for c in answer):
+            lang = "hinglish" if "hinglish" in request.sessionLanguage or "hi" in request.sessionLanguage else "en"
+            
         if extract_response:
             parsed = safe_parse_json(extract_response)
-            if parsed:
-                if current_qid == "chief_complaint":
-                    structured["chief_complaint_category"] = parsed.get("complaint_category", "unknown")
-                    if parsed.get("complaint_text"):
-                        structured["chief_complaint"] = parsed.get("complaint_text")
-                    if parsed.get("duration"):
-                        structured["duration"] = parsed.get("duration")
-                    if parsed.get("associated_symptoms"):
-                        # Save the associated symptoms in the map under an intermediate key
-                        structured["_temp_associated"] = parsed.get("associated_symptoms")
-                if "extracted" in parsed:
-                    extracted = parsed["extracted"]
+            if not parsed:
+                parsed = {}
+                
+            if current_qid == "chief_complaint":
+                cat = parsed.get("complaint_category", "unknown")
+                ans_lower = norm_answer
+                
+                # Robust heuristic explicit keyword override for chief complaint
+                if any(w in ans_lower for w in ["kamar", "कमर", "peeth", "पीठ", "back"]):
+                    cat = "back_pain"
+                elif any(w in ans_lower for w in ["pet", "पेट", "stomach"]):
+                    cat = "stomach_pain"
+                elif any(w in ans_lower for w in ["sir", "sar", "सिर", "सर", "headache"]):
+                    # "sar" might match other things, but in medical context, usually sar/sir means head
+                    cat = "headache"
+                elif any(w in ans_lower for w in ["gale", "gala", "गले", "गला", "throat"]):
+                    cat = "sore_throat"
+                elif any(w in ans_lower for w in ["khansi", "khaasi", "खांसी", "खॉसी", "cough"]):
+                    cat = "cough"
+                elif any(w in ans_lower for w in ["jukam", "sardi", "जुकाम", "सर्दी", "cold"]):
+                    cat = "cold"
+                elif any(w in ans_lower for w in ["bukhar", "fever", "बुखार", "tap"]):
+                    cat = "fever"
+                elif any(w in ans_lower for w in ["ulti", "vomiting", "उल्टी"]):
+                    cat = "vomiting"
+                elif any(w in ans_lower for w in ["dast", "loose motion", "diarrhea", "दस्त"]):
+                    cat = "diarrhea"
+                
+                structured["chief_complaint_category"] = cat
+                if parsed.get("complaint_text"):
+                    structured["chief_complaint"] = parsed.get("complaint_text")
+                if parsed.get("duration"):
+                    structured["duration"] = parsed.get("duration")
+                
+                assoc = parsed.get("associated_symptoms")
+                if assoc:
+                    if isinstance(assoc, list):
+                        structured["_temp_associated"] = ", ".join(assoc)
+                    else:
+                        structured["_temp_associated"] = str(assoc)
+                        
+                if parsed.get("cough_type"):
+                    structured["cough_type"] = parsed.get("cough_type")
+                # Fallback for cough type if Qwen missed it
+                if not structured.get("cough_type") and structured.get("chief_complaint_category") == "cough":
+                    if "dry" in ans_lower or "sookhi" in ans_lower or "सूखी" in ans_lower:
+                        structured["cough_type"] = "dry"
+                    elif "phlegm" in ans_lower or "wet" in ans_lower or "balgam" in ans_lower or "बलगम" in ans_lower:
+                        structured["cough_type"] = "phlegm"
+            if "extracted" in parsed:
+                extracted = parsed["extracted"]
         
         # Store the answer
         if current_qid == "chief_complaint":
@@ -642,18 +788,31 @@ Return JSON: {{"extracted": "the key information"}}"""
     chief = structured.get("chief_complaint", request.chiefComplaint or "")
     
     # ---- Generate the question text ----
-    fallback_question = PREDEFINED_QUESTIONS.get(next_qid, {}).get(lang, f"Please tell me more about your {next_qid.replace('_', ' ')}.")
-    question_text = fallback_question
-    
-    if next_qid == "duration":
-        # Hardcode Q2 based on localization
-        loc_complaint = LOCALIZED_COMPLAINTS.get(complaint_category, LOCALIZED_COMPLAINTS["unknown"])
-        if lang == "hi":
-            question_text = f"{loc_complaint['hi']} कब से है?"
-        else:
-            question_text = f"Since when have you had the {loc_complaint['en']}?"
+    question_text = PREDEFINED_QUESTIONS.get(next_qid, {}).get(lang, f"Please tell me more about your {next_qid.replace('_', ' ')}.")
     
     print(f"[INTERVIEW] nextQuestion={next_qid}, text='{question_text[:80]}', source='COMPLAINT_FLOWS'")
+    
+    print("\n[MEDIKIOSK DEBUG]")
+    print(f"Raw transcript:\n{answer}")
+    if current_qid == "chief_complaint":
+        try:
+            # We recreate norm_answer here if it's out of scope or just use a simplified version for logging
+            norm_ans = answer.lower().replace("।", "").strip()
+            import re
+            norm_ans = re.sub(r'\s+', ' ', norm_ans)
+            print(f"Normalized transcript:\n{norm_ans}")
+        except Exception:
+            pass
+    print(f"Detected language:\n{lang}")
+    print(f"Detected complaint:\n{structured.get('chief_complaint_category', 'unknown')}")
+    print(f"Duration:\n{structured.get('duration', 'None')}")
+    
+    assoc_key = next((k for k in COMPLAINT_FLOWS.get(structured.get("chief_complaint_category", "unknown"), []) if "associated" in k), "associated_symptoms")
+    print(f"Associated symptoms:\n{structured.get(assoc_key, 'None')}")
+    
+    print(f"Selected flow:\n{structured.get('chief_complaint_category', 'unknown')}")
+    print(f"Next question:\n{question_text}")
+    print("Question source:\nCOMPLAINT_FLOWS\n")
     
     return {
         "type": "question",
@@ -800,3 +959,5 @@ Only use information from the transcript. Write "Not provided" for missing secti
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+

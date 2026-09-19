@@ -1,5 +1,6 @@
 'use client'
 import {useState, useEffect, useRef, useCallback, Fragment} from 'react'
+import jsQR from "jsqr";
 import {AlertTriangle,ArrowRight,Check,FileText,Languages,Mic,ScanLine,ShieldCheck,Volume2,UserRound,HeartPulse,Camera,IdCard,Clock3,Printer,RotateCcw,X,LayoutGrid,UserPlus,Thermometer,Activity,Wind,Hand,Upload,RefreshCw,Send} from 'lucide-react'
 import {useKioskStore} from '../../lib/store';import {Button,Card,Icon,Keyboard} from './ui';import {copy} from './chrome'
 import { speakText, checkRedFlags, getTTSLang, cancelSpeech } from '../../lib/speech';
@@ -13,6 +14,13 @@ export function Consent(){const {lang,next,consent,set}=useKioskStore();const x=
 export function Identify(){
   const {lang, identity, idMethod, regName, regAge, regGender, set}=useKioskStore();
   const x=text(lang);
+  
+  const [patientIdentified, setPatientIdentified] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const [idNumber, setIdNumber] = useState(() => {
     if (identity.startsWith('ABHA: ')) return identity.replace('ABHA: ', '');
@@ -36,14 +44,86 @@ export function Identify(){
   const handleSubmit = () => {
     if (idMethod === 'abha' && idNumber.length === 14) {
       set({identity: 'ABHA: ' + idNumber}); 
-      useKioskStore.getState().next();
+      setPatientIdentified(true);
     } else if (idMethod === 'aadhar' && idNumber.length === 12) {
       set({identity: 'Aadhar: ' + idNumber}); 
-      useKioskStore.getState().next();
+      setPatientIdentified(true);
     } else if (idMethod === 'new' && regName && regAge && regGender) {
       set({identity: `New Reg: ${regName}, ${regAge}y, ${regGender}`});
       useKioskStore.getState().next();
     }
+  };
+
+  const handleStartScan = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      setCameraActive(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        requestAnimationFrame(tick);
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      alert("Unable to access camera. Simulating scan instead.");
+      handleSimulateScan();
+    }
+  };
+
+  const tick = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+        if (code) {
+          setIsScanning(true);
+          setTimeout(() => {
+            if (videoRef.current && videoRef.current.srcObject) {
+              const stream = videoRef.current.srcObject as MediaStream;
+              stream.getTracks().forEach(track => track.stop());
+            }
+            setIsScanning(false);
+            setCameraActive(false);
+            setScanSuccess(true);
+            // Simulate extracting ABHA from QR
+            const randomAbha = Array.from({length: 14}, () => Math.floor(Math.random() * 10)).join('');
+            setIdNumber(randomAbha);
+            set({identity: 'ABHA: ' + randomAbha});
+          }, 1000);
+          return;
+        }
+      }
+    }
+    // Only continue if camera is still supposed to be active and we haven't found a code
+    requestAnimationFrame(tick);
+  };
+
+  const handleSimulateScan = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      // Stop camera if active
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+      }
+      setIsScanning(false);
+      setCameraActive(false);
+      const randomAbha = Array.from({length: 14}, () => Math.floor(Math.random() * 10)).join('');
+      setIdNumber(randomAbha);
+      set({identity: 'ABHA: ' + randomAbha});
+      setPatientIdentified(true);
+    }, 3000);
+  };
+  
+  const handleVerifyAndContinue = () => {
+    useKioskStore.getState().next();
   };
 
   const renderIdNumber = () => {
@@ -67,7 +147,7 @@ export function Identify(){
         <button onClick={()=>set({idMethod:'new'})} className={`tab-btn ${idMethod==='new'?'active':''}`}>New Registration</button>
       </div>
 
-      {(idMethod === 'abha' || idMethod === 'aadhar') && (
+      {(idMethod === 'abha' || idMethod === 'aadhar') && !patientIdentified && (
         <div className="abha-split fade">
           <div className="abha-panel" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
             <div className="abha-panel-header">
@@ -78,10 +158,45 @@ export function Identify(){
               <div className="scanner-stage" style={{minHeight: '520px', width: '100%', background: '#F8FAFC', borderRadius: '12px', border: '2px dashed #CBD5E1', color: '#64748B', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px', padding: '24px'}}>
                 <span style={{maxWidth: '300px', textAlign: 'center', fontSize: '18px', color: '#64748B'}}>Hold your {idMethod === 'abha' ? 'ABHA' : 'Aadhar'} Card or QR code steady in front of the scanner below.</span>
                 <div className="scanner-glow" style={{width: '100%', flex: 1, minHeight: '280px', borderColor: '#94A3B8', borderStyle: 'solid', background: '#F1F5F9', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', borderRadius: '16px'}}>
-                  <IdCard size={140} className="text-[#1E3A8A]/50" />
-                  <div className="scan-line" style={{position: 'absolute', top: '50%', left: '8%', right: '8%', height: '3px', background: '#10B981', boxShadow: '0 0 16px #10B981', zIndex: 10}}/>
+                  <video 
+                    ref={videoRef} 
+                    autoPlay 
+                    playsInline 
+                    muted 
+                    style={{
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover', 
+                      position: 'absolute', 
+                      top: 0, 
+                      left: 0,
+                      display: cameraActive ? 'block' : 'none'
+                    }}
+                  />
+                  {!cameraActive && !scanSuccess && (
+                    <IdCard size={140} className="text-[#1E3A8A]/50" />
+                  )}
+                  {scanSuccess && (
+                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', color: '#10B981'}}>
+                      <Check size={100} />
+                      <div style={{fontSize: '24px', fontWeight: 'bold'}}>QR Scanned!</div>
+                    </div>
+                  )}
+                  {cameraActive && <div className="scan-line" style={{position: 'absolute', top: isScanning ? '80%' : '20%', left: '0', right: '0', height: '3px', background: '#10B981', boxShadow: '0 0 16px #10B981', zIndex: 10, transition: 'top 1.5s ease-in-out', animation: isScanning ? 'scan 1.5s infinite alternate' : 'none'}}/>}
+                  {!cameraActive && !scanSuccess && <div className="scan-line" style={{position: 'absolute', top: '50%', left: '8%', right: '8%', height: '3px', background: '#10B981', boxShadow: '0 0 16px #10B981', zIndex: 10}}/>}
                 </div>
-                <Button variant="primary" style={{width: '100%', fontSize: '20px', padding: '16px'}} onClick={() => alert('Scanner activated!')}>Start Scan</Button>
+                {!cameraActive && !scanSuccess ? (
+                  <Button variant="primary" style={{width: '100%', fontSize: '20px', padding: '16px'}} onClick={handleStartScan}>Start Camera</Button>
+                ) : scanSuccess ? (
+                  <div style={{width: '100%', fontSize: '20px', padding: '16px', background: '#10B981', color: 'white', textAlign: 'center', borderRadius: '12px', fontWeight: 'bold'}}>
+                    Scanned successfully!
+                  </div>
+                ) : (
+                  <div style={{width: '100%', fontSize: '20px', padding: '16px', background: isScanning ? '#10B981' : '#F1F5F9', color: isScanning ? 'white' : '#64748B', textAlign: 'center', borderRadius: '12px', fontWeight: 'bold'}}>
+                    {isScanning ? 'Scanned successfully' : 'Scanning for QR Code...'}
+                  </div>
+                )}
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
               </div>
             </div>
           </div>
@@ -104,6 +219,80 @@ export function Identify(){
                 <button className="numpad-btn" style={{visibility: 'hidden'}}></button>
                 <button onClick={() => handleType('0')} className="numpad-btn" style={{height: '100%', minHeight: '90px', fontSize: '36px', borderRadius: '12px'}}>0</button>
                 <button onClick={handleSubmit} className="numpad-btn check-btn" disabled={idMethod === 'abha' ? idNumber.length !== 14 : idNumber.length !== 12} style={{height: '100%', minHeight: '90px', borderRadius: '12px'}}><Check size={40} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(idMethod === 'abha' || idMethod === 'aadhar') && patientIdentified && (
+        <div className="abha-split fade">
+          <div className="abha-panel" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+            <div className="abha-panel-header">
+              <UserRound size={20} className="text-[#1E3A8A]" />
+              Patient Details
+            </div>
+            <div className="abha-panel-body" style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px', padding: '30px'}}>
+              <div style={{background: '#ECFDF5', color: '#065F46', padding: '8px 16px', borderRadius: '30px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px'}}>
+                <Check size={24} /> Patient Identified
+              </div>
+              <div style={{textAlign: 'center', fontSize: '24px', color: '#334155', width: '100%'}}>
+                <div style={{background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '30px', marginTop: '10px'}}>
+                  <div style={{color: '#94A3B8', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px'}}>Name</div>
+                  <div style={{fontSize: '42px', fontWeight: 'bold', color: '#0F172A', marginBottom: '24px'}}>Kori Sahil</div>
+                  
+                  <div style={{display: 'flex', justifyContent: 'center', gap: '40px', marginTop: '20px'}}>
+                    <div>
+                      <div style={{color: '#94A3B8', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase'}}>Age</div>
+                      <div style={{fontSize: '28px', fontWeight: 'bold'}}>21</div>
+                    </div>
+                    <div>
+                      <div style={{color: '#94A3B8', fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase'}}>Gender</div>
+                      <div style={{fontSize: '28px', fontWeight: 'bold'}}>Male</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Button variant="primary" onClick={handleVerifyAndContinue} style={{width: '100%', marginTop: '30px', fontSize: '22px', padding: '20px'}}>Verify & Continue</Button>
+            </div>
+          </div>
+          
+          <div className="abha-panel" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
+            <div className="abha-panel-header">
+              <FileText size={20} className="text-[#1E3A8A]" />
+              Previous Medical History
+            </div>
+            <div className="abha-panel-body" style={{flex: 1, padding: '30px', overflowY: 'auto'}}>
+              <div style={{fontSize: '24px', fontWeight: 'bold', color: '#1E293B', marginBottom: '24px'}}>Demo Medical History</div>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                <div style={{background: '#F1F5F9', padding: '16px 20px', borderRadius: '12px'}}>
+                  <div style={{fontSize: '20px', fontWeight: 'bold', color: '#3B82F6', borderBottom: '2px solid #E2E8F0', paddingBottom: '8px', marginBottom: '12px'}}>2025</div>
+                  <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '18px', color: '#475569'}}>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>january 26</span> • Acute fever</li>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>june 19</span> • Cough and cold</li>
+                  </ul>
+                </div>
+                <div style={{background: '#F1F5F9', padding: '16px 20px', borderRadius: '12px'}}>
+                  <div style={{fontSize: '20px', fontWeight: 'bold', color: '#3B82F6', borderBottom: '2px solid #E2E8F0', paddingBottom: '8px', marginBottom: '12px'}}>2024</div>
+                  <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '18px', color: '#475569'}}>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>august 14</span> • Gastric discomfort</li>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>july 25</span> • Upper respiratory infection</li>
+                  </ul>
+                </div>
+                <div style={{background: '#F1F5F9', padding: '16px 20px', borderRadius: '12px'}}>
+                  <div style={{fontSize: '20px', fontWeight: 'bold', color: '#3B82F6', borderBottom: '2px solid #E2E8F0', paddingBottom: '8px', marginBottom: '12px'}}>2023</div>
+                  <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '18px', color: '#475569'}}>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>april 3</span> • Headache</li>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>june 14</span> • Sore throat</li>
+                  </ul>
+                </div>
+                <div style={{background: '#F1F5F9', padding: '16px 20px', borderRadius: '12px'}}>
+                  <div style={{fontSize: '20px', fontWeight: 'bold', color: '#3B82F6', borderBottom: '2px solid #E2E8F0', paddingBottom: '8px', marginBottom: '12px'}}>2022</div>
+                  <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '18px', color: '#475569'}}>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>february 8</span> • Lower back pain</li>
+                    <li><span style={{color: '#64748B', width: '120px', display: 'inline-block'}}>may 3</span> • Seasonal allergy symptoms</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
