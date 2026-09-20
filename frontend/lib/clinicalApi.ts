@@ -108,6 +108,8 @@ export const generateSummaryApi = async (
   }
 };
 
+
+
 // ============================================================
 // Transcription API
 // ============================================================
@@ -166,5 +168,36 @@ export const checkApiHealth = async (): Promise<{ ollama: boolean; whisper: bool
     return { ollama: data.ollama, whisper: data.whisper };
   } catch {
     return { ollama: false, whisper: false };
+  }
+};
+// ============================================================
+// Save Session API
+// ============================================================
+export const saveSessionApi = async (
+  patientIdentity: string,
+  sessionLanguage: string,
+  chiefComplaint: string,
+  structuredAnswers: any,
+  summary: any
+): Promise<any> => {
+  try {
+    const res = await fetch(`${API_BASE}/api/save_session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patientIdentity,
+        sessionLanguage,
+        chiefComplaint,
+        structuredAnswers,
+        summary
+      }),
+    });
+    if (!res.ok) {
+      throw new Error('Failed to save session');
+    }
+    return await res.json();
+  } catch (e) {
+    console.error('saveSessionApi error:', e);
+    throw e;
   }
 };

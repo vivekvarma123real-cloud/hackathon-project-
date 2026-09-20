@@ -26,3 +26,5 @@ models/
 
 # Lockfiles (optional)
 # package-lock.json
+
+*.db

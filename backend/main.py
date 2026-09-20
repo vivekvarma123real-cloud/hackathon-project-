@@ -6,11 +6,16 @@ import aiofiles
 import tempfile
 import torch
 import torchaudio
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import httpx
 from typing import Dict, Any, List, Optional
+from sqlalchemy.orm import Session
+from database import engine, Base, get_db, PatientSession
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 # Fix Windows console encoding for Hindi/Unicode output
 if sys.stdout.encoding != 'utf-8':
@@ -955,6 +960,34 @@ Only use information from the transcript. Write "Not provided" for missing secti
     
     return {"summary": "Summary generation failed. Please try again."}
 
+
+class SaveSessionRequest(BaseModel):
+    patientIdentity: str
+    sessionLanguage: str
+    chiefComplaint: str
+    structuredAnswers: Dict[str, str]
+    summary: Dict[str, str]
+
+@app.post("/api/save_session")
+async def save_session(request: SaveSessionRequest, db: Session = Depends(get_db)):
+    print(f"\n[DATABASE] Saving session for patient: {request.patientIdentity}")
+    try:
+        new_session = PatientSession(
+            patient_identity=request.patientIdentity,
+            session_language=request.sessionLanguage,
+            chief_complaint=request.chiefComplaint,
+            structured_answers=request.structuredAnswers,
+            clinical_summary=request.summary
+        )
+        db.add(new_session)
+        db.commit()
+        db.refresh(new_session)
+        print(f"[DATABASE] Session saved successfully with ID: {new_session.id}")
+        return {"status": "success", "session_id": new_session.id}
+    except Exception as e:
+        print(f"[DATABASE] Error saving session: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save session to database.")
 
 if __name__ == "__main__":
     import uvicorn
